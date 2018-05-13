@@ -8,9 +8,8 @@ uses
   System.Generics.Collections,
   System.JSON,
   System.TypInfo,
-  IdHTTP,
-  REST.JSON,
-  Dv.Marshaller;
+  Dv.Marshaller { custom class for marshalling types to JSON },
+  REST.JSON { for formatting and basic JSON conversion };
 
 type
 
@@ -100,7 +99,6 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure LoadFromURL(AURL: string);
     procedure LoadFromStream(AStream: TStream);
     procedure LoadFromString(AString: string);
     procedure SaveToStream(AStream: TStream; APretty: Boolean = False);
@@ -521,18 +519,6 @@ begin
     end;
   finally
     AJSON.Free;
-  end;
-end;
-
-procedure TSwaggerAPI.LoadFromURL(AURL: string);
-var
-  AClient: TIdHTTP;
-begin
-  AClient := TIdHTTP.Create;
-  try
-    LoadFromString(AClient.Get(AURL));
-  finally
-    AClient.Free;
   end;
 end;
 
