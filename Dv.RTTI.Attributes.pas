@@ -1,4 +1,4 @@
-unit Dv.RTTI.Attributes;
+unit Dv.Rtti.Attributes;
 
 interface
 
@@ -7,13 +7,16 @@ uses
 
 type
 
-  LengthAttribute = class(TCustomAttribute)
+  IntAttribute = class(TCustomAttribute)
   private
     FValue: Integer;
   public
     constructor Create(AValue: Integer);
-    property Length: Integer read FValue;
+    property Value: Integer read FValue;
   end;
+
+  MaxLengthAttribute = class(IntAttribute);
+  MinLengthAttribute = class(IntAttribute);
 
   NameAttribute = class(TCustomAttribute)
   private
@@ -29,7 +32,7 @@ implementation
 
 { TLengthAttribute }
 
-constructor LengthAttribute.Create(AValue: Integer);
+constructor IntAttribute.Create(AValue: Integer);
 begin
   FValue := AValue;
 end;

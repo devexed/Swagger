@@ -66,7 +66,7 @@ type
 
   TSwaggerAPI = class
   private
-    FMarshaller: TSDFJSONMarshaller;
+    FMarshaller: TDvJsonMarshaller;
 
     FSwaggerVersion: string;
     FTitle: string;
@@ -101,6 +101,7 @@ type
 
     procedure LoadFromStream(AStream: TStream);
     procedure LoadFromString(AString: string);
+    procedure SaveToJSON(AJSON: TJSONObject);
     procedure SaveToStream(AStream: TStream; APretty: Boolean = False);
 
     function GetRefDefinition<T: class>: TSwaggerDefinition;
@@ -195,7 +196,7 @@ end;
 constructor TSwaggerAPI.Create;
 begin
   inherited Create;
-  FMarshaller := TSDFJsonMarshaller.Create;
+  FMarshaller := TDvJsonMarshaller.Create;
   FSwaggerVersion := '2.0';
   FDefinitions := TDictionary<string, TSwaggerDefinition>.Create;
   FPaths := TDictionary<string, TSwaggerPath>.Create;
@@ -534,27 +535,32 @@ begin
   end;
 end;
 
+procedure TSwaggerAPI.SaveToJSON(AJSON: TJSONObject);
+var
+  AInfo: TJSONObject;
+begin
+  AJSON.AddPair('swagger', FSwaggerVersion);
+  // Info
+  AInfo := TJSONObject.Create;
+  AInfo.AddPair('title', FTitle);
+  AInfo.AddPair('version', FVersion);
+  AJSON.AddPair('info', AInfo);
+  // Paths
+  AJSON.AddPair('paths', GetPathListJSON);
+  // Definitions
+  AJSON.AddPair('definitions', GetDefinitionListJSON);
+end;
+
 procedure TSwaggerAPI.SaveToStream(AStream: TStream; APretty: Boolean);
 var
   AStreamWriter: TStreamWriter;
   AJSON: TJSONObject;
-  AInfo: TJSONObject;
 begin
   AStreamWriter := TStreamWriter.Create(AStream);
   AJSON := nil;
   try
     AJSON := TJSONObject.Create;
-    AJSON.AddPair('swagger', FSwaggerVersion);
-    // Info
-    AInfo := TJSONObject.Create;
-    AInfo.AddPair('title', FTitle);
-    AInfo.AddPair('version', FVersion);
-    AJSON.AddPair('info', AInfo);
-    // Paths
-    AJSON.AddPair('paths', GetPathListJSON);
-    // Definitions
-    AJSON.AddPair('definitions', GetDefinitionListJSON);
-    // Save
+    SaveToJSON(AJSON);
     if APretty then
       AStreamWriter.Write(TJson.Format(AJSON))
     else
